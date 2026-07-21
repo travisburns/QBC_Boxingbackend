@@ -1,0 +1,28 @@
+## .NET
+bin/
+obj/
+out/
+*.user
+*.suo
+.vs/
+project.lock.json
+artifacts/
+
+## Rider / VS Code
+.idea/
+.vscode/
+
+## App secrets — never commit real secrets
+appsettings.*.local.json
+secrets.json
+*.env
+.env
+.env.local
+
+## SQL
+*.mdf
+*.ldf
+
+## OS
+.DS_Store
+Thumbs.db
