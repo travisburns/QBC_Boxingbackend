@@ -78,9 +78,11 @@ Square plan **and** validated in `PlanCatalog` — keep them in sync.
 
 ## Database
 
+An `InitialCreate` migration is already included under `Data/Migrations`. Just
+point it at your database and apply it:
+
 ```bash
 cd src/QBC.Api
-dotnet ef migrations add InitialCreate
 dotnet ef database update      # or let the app apply migrations on startup
 ```
 
@@ -114,7 +116,7 @@ events. Copy the signature key into `Square:WebhookSignatureKey` and the exact
 notification URL into `Square:WebhookNotificationUrl` (it's part of the
 signature). Use the Square CLI or a tunnel (e.g. ngrok) to test locally.
 
-> Note: this backend was authored in an environment without the .NET SDK, so it
-> has not been compiled here. Run `dotnet build` after cloning; wiring and
-> namespaces are complete, but confirm the Square plan-variation ids and your
-> SQL connection before first run.
+> Verified: builds clean with the .NET 8 SDK (`dotnet build -c Release`, 0
+> warnings / 0 errors) and the `InitialCreate` migration is included. Before
+> first run, set your secrets (above), confirm the Square plan-variation ids,
+> and point the connection string at your SQL Server.
