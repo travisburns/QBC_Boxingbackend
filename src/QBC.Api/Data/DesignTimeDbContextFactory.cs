@@ -14,7 +14,7 @@ public sealed class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<App
     public AppDbContext CreateDbContext(string[] args)
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseSqlServer("Server=localhost;Database=ApexAthletic;Trusted_Connection=True;TrustServerCertificate=True")
+            .UseSqlServer("Server=localhost;Database=qbcdata;Trusted_Connection=True;TrustServerCertificate=True")
             .Options;
         return new AppDbContext(options);
     }

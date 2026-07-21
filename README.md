@@ -1,6 +1,6 @@
-# Apex Athletic — Backend API
+# QBC Boxing — Backend API
 
-ASP.NET Core 8 Web API for the Apex Athletic gym site. Handles member accounts
+ASP.NET Core 8 Web API for the QBC Boxing gym site. Handles member accounts
 (auth) and Square-powered membership payments.
 
 - **Framework:** ASP.NET Core 8 (Web API)
@@ -58,7 +58,7 @@ dotnet user-secrets init
 dotnet user-secrets set "Jwt:Key" "$(openssl rand -base64 48)"
 
 # SQL Server (if not using the LocalDB default in appsettings.Development.json)
-dotnet user-secrets set "ConnectionStrings:Default" "Server=...;Database=ApexAthletic;..."
+dotnet user-secrets set "ConnectionStrings:Default" "Server=...;Database=qbcdata;..."
 
 # Square (sandbox values from the Square Developer Dashboard)
 dotnet user-secrets set "Square:AccessToken" "EAAA....(sandbox access token)"
@@ -85,14 +85,14 @@ matches your setup and set it (via user-secrets for anything real):
 
 ```jsonc
 // Windows + Visual Studio (LocalDB) — this is the committed dev default
-"Server=(localdb)\\MSSQLLocalDB;Database=ApexAthletic;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True"
+"Server=(localdb)\\MSSQLLocalDB;Database=qbcdata;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True"
 
 // SQL Server in Docker (works on macOS/Linux)
 //   docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=Your_strong_Pass1" -p 1433:1433 -d mcr.microsoft.com/mssql/server:2022-latest
-"Server=localhost,1433;Database=ApexAthletic;User Id=sa;Password=Your_strong_Pass1;TrustServerCertificate=True"
+"Server=localhost,1433;Database=qbcdata;User Id=sa;Password=Your_strong_Pass1;TrustServerCertificate=True"
 
 // Azure SQL (production) — set via env var / Key Vault, never commit
-"Server=tcp:<your-server>.database.windows.net,1433;Database=ApexAthletic;User ID=<user>;Password=<password>;Encrypt=True;TrustServerCertificate=False"
+"Server=tcp:<your-server>.database.windows.net,1433;Database=qbcdata;User ID=<user>;Password=<password>;Encrypt=True;TrustServerCertificate=False"
 ```
 
 An `InitialCreate` migration is already included under `Data/Migrations`. Once
