@@ -5,9 +5,9 @@ namespace QBC.Api.Data;
 
 /// <summary>
 /// Lets EF Core tooling (migrations) construct the context at design time
-/// without booting the web host or needing a live database connection.
-/// The connection string here is only used to resolve the SQL Server provider's
-/// syntax when scaffolding migrations — it is never connected to.
+/// without booting the web host. EF tooling uses this factory INSTEAD of
+/// appsettings.json, so this connection string is what `dotnet ef database
+/// update` actually connects to — set it to your real target database.
 /// </summary>
 public sealed class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 {
