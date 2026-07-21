@@ -1,4 +1,4 @@
-namespace QBC.Api.Domain;
+namespace QBC.Api.Models;
 
 /// <summary>Local view of a member's subscription state, kept in sync with Square via webhooks.</summary>
 public enum MembershipStatus

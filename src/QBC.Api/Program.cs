@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using QBC.Api.Data;
-using QBC.Api.Domain;
+using QBC.Api.Models;
 using QBC.Api.Options;
 using QBC.Api.Services;
 using QBC.Api.Services.Square;

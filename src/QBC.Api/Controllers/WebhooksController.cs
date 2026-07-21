@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using QBC.Api.Data;
-using QBC.Api.Domain;
+using QBC.Api.Models;
 using QBC.Api.Services;
 using QBC.Api.Services.Square;
 

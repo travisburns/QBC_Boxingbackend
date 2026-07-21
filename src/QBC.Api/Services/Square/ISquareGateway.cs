@@ -1,4 +1,4 @@
-using QBC.Api.Domain;
+using QBC.Api.Models;
 
 namespace QBC.Api.Services.Square;
 

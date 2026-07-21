@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using QBC.Api.Domain;
+using QBC.Api.Models;
 
 namespace QBC.Api.Data;
 

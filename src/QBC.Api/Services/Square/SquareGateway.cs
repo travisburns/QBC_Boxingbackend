@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
-using QBC.Api.Domain;
+using QBC.Api.Models;
 using QBC.Api.Options;
 
 namespace QBC.Api.Services.Square;

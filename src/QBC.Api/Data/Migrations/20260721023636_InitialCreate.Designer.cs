@@ -12,7 +12,7 @@ using QBC.Api.Data;
 namespace QBC.Api.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260721022957_InitialCreate")]
+    [Migration("20260721023636_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -158,7 +158,7 @@ namespace QBC.Api.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("QBC.Api.Domain.ApplicationUser", b =>
+            modelBuilder.Entity("QBC.Api.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -237,7 +237,7 @@ namespace QBC.Api.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("QBC.Api.Domain.MembershipSubscription", b =>
+            modelBuilder.Entity("QBC.Api.Models.MembershipSubscription", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -297,7 +297,7 @@ namespace QBC.Api.Data.Migrations
                     b.ToTable("Subscriptions");
                 });
 
-            modelBuilder.Entity("QBC.Api.Domain.WebhookEvent", b =>
+            modelBuilder.Entity("QBC.Api.Models.WebhookEvent", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -337,7 +337,7 @@ namespace QBC.Api.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("QBC.Api.Domain.ApplicationUser", null)
+                    b.HasOne("QBC.Api.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -346,7 +346,7 @@ namespace QBC.Api.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("QBC.Api.Domain.ApplicationUser", null)
+                    b.HasOne("QBC.Api.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -361,7 +361,7 @@ namespace QBC.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("QBC.Api.Domain.ApplicationUser", null)
+                    b.HasOne("QBC.Api.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -370,16 +370,16 @@ namespace QBC.Api.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("QBC.Api.Domain.ApplicationUser", null)
+                    b.HasOne("QBC.Api.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("QBC.Api.Domain.MembershipSubscription", b =>
+            modelBuilder.Entity("QBC.Api.Models.MembershipSubscription", b =>
                 {
-                    b.HasOne("QBC.Api.Domain.ApplicationUser", "User")
+                    b.HasOne("QBC.Api.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

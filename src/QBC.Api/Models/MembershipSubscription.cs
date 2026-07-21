@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace QBC.Api.Domain;
+namespace QBC.Api.Models;
 
 /// <summary>
 /// Local mirror of a Square subscription. We store only Square identifiers,

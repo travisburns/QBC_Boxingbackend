@@ -30,7 +30,7 @@ src/QBC.Api/
 ├─ Controllers/               # Auth, Plans, Checkout, Account, Webhooks
 ├─ Services/                  # TokenService (JWT), MembershipService
 │  └─ Square/                 # SquareGateway (REST), signature verification
-├─ Domain/                    # ApplicationUser, MembershipSubscription, enums
+├─ Models/                    # Entities: ApplicationUser, MembershipSubscription, enums
 ├─ Data/AppDbContext.cs       # Identity + subscriptions + webhook log
 ├─ Catalog/PlanCatalog.cs     # Server-side plan/price source of truth
 ├─ Dtos/                      # Request/response contracts

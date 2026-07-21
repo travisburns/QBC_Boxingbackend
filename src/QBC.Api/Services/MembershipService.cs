@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using QBC.Api.Catalog;
 using QBC.Api.Data;
-using QBC.Api.Domain;
+using QBC.Api.Models;
 using QBC.Api.Dtos;
 using QBC.Api.Options;
 using QBC.Api.Services.Square;

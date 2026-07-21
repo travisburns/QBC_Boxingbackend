@@ -2,7 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using QBC.Api.Domain;
+using QBC.Api.Models;
 using QBC.Api.Dtos;
 using QBC.Api.Services;
 using QBC.Api.Services.Square;

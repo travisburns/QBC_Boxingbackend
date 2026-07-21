@@ -1,4 +1,4 @@
-namespace QBC.Api.Domain;
+namespace QBC.Api.Models;
 
 /// <summary>
 /// Idempotency log for incoming Square webhooks. We record each event id so a

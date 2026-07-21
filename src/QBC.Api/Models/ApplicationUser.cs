@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace QBC.Api.Domain;
+namespace QBC.Api.Models;
 
 /// <summary>
 /// App user. Extends Identity with profile fields and the Square customer id.
