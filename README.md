@@ -78,13 +78,34 @@ Square plan **and** validated in `PlanCatalog` — keep them in sync.
 
 ## Database
 
-An `InitialCreate` migration is already included under `Data/Migrations`. Just
-point it at your database and apply it:
+The API talks to **SQL Server** via EF Core. `Program.cs` reads
+`ConnectionStrings:Default`; `appsettings.Development.json` ships a working
+LocalDB string so it runs out of the box on Windows. Pick the example that
+matches your setup and set it (via user-secrets for anything real):
+
+```jsonc
+// Windows + Visual Studio (LocalDB) — this is the committed dev default
+"Server=(localdb)\\MSSQLLocalDB;Database=ApexAthletic;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True"
+
+// SQL Server in Docker (works on macOS/Linux)
+//   docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=Your_strong_Pass1" -p 1433:1433 -d mcr.microsoft.com/mssql/server:2022-latest
+"Server=localhost,1433;Database=ApexAthletic;User Id=sa;Password=Your_strong_Pass1;TrustServerCertificate=True"
+
+// Azure SQL (production) — set via env var / Key Vault, never commit
+"Server=tcp:<your-server>.database.windows.net,1433;Database=ApexAthletic;User ID=<user>;Password=<password>;Encrypt=True;TrustServerCertificate=False"
+```
+
+An `InitialCreate` migration is already included under `Data/Migrations`. Once
+the connection string points at a reachable server, create the schema:
 
 ```bash
 cd src/QBC.Api
 dotnet ef database update      # or let the app apply migrations on startup
 ```
+
+> The app also applies pending migrations automatically on startup, so in
+> development `dotnet run` will create the database and tables for you the first
+> time — as long as the SQL Server in your connection string is reachable.
 
 ## Run
 
