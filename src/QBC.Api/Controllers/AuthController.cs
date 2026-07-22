@@ -37,7 +37,7 @@ public sealed class AuthController(
             return BadRequest(new { message = string.Join(" ", result.Errors.Select(e => e.Description)) });
         }
 
-        return Ok(BuildAuthResponse(user));
+        return Ok(await BuildAuthResponse(user));
     }
 
     [HttpPost("login")]
@@ -56,7 +56,7 @@ public sealed class AuthController(
             return Unauthorized(new { message });
         }
 
-        return Ok(BuildAuthResponse(user));
+        return Ok(await BuildAuthResponse(user));
     }
 
     [Authorize]
@@ -66,13 +66,15 @@ public sealed class AuthController(
         var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var user = id is null ? null : await users.FindByIdAsync(id);
         if (user is null) return Unauthorized();
-        return Ok(new UserDto(user.Id, user.Email!, user.FirstName, user.LastName));
+        var roles = await users.GetRolesAsync(user);
+        return Ok(new UserDto(user.Id, user.Email!, user.FirstName, user.LastName, roles.ToList()));
     }
 
-    private AuthResponse BuildAuthResponse(ApplicationUser user)
+    private async Task<AuthResponse> BuildAuthResponse(ApplicationUser user)
     {
-        var (token, expires) = tokens.CreateAccessToken(user);
+        var roles = await users.GetRolesAsync(user);
+        var (token, expires) = tokens.CreateAccessToken(user, roles);
         return new AuthResponse(token, expires,
-            new UserDto(user.Id, user.Email!, user.FirstName, user.LastName));
+            new UserDto(user.Id, user.Email!, user.FirstName, user.LastName, roles.ToList()));
     }
 }

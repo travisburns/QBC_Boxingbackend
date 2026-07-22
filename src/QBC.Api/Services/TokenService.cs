@@ -10,14 +10,14 @@ namespace QBC.Api.Services;
 
 public interface ITokenService
 {
-    (string token, DateTime expiresUtc) CreateAccessToken(ApplicationUser user);
+    (string token, DateTime expiresUtc) CreateAccessToken(ApplicationUser user, IEnumerable<string> roles);
 }
 
 public sealed class TokenService(IOptions<JwtOptions> options) : ITokenService
 {
     private readonly JwtOptions _opt = options.Value;
 
-    public (string token, DateTime expiresUtc) CreateAccessToken(ApplicationUser user)
+    public (string token, DateTime expiresUtc) CreateAccessToken(ApplicationUser user, IEnumerable<string> roles)
     {
         var expires = DateTime.UtcNow.AddMinutes(_opt.AccessTokenMinutes);
 
@@ -28,6 +28,9 @@ public sealed class TokenService(IOptions<JwtOptions> options) : ITokenService
             new(ClaimTypes.NameIdentifier, user.Id),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
+
+        // Role claims drive [Authorize(Roles = "Admin")] on the CRM endpoints.
+        claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_opt.Key));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

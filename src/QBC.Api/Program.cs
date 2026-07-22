@@ -17,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 builder.Services.Configure<SquareOptions>(builder.Configuration.GetSection(SquareOptions.SectionName));
 builder.Services.Configure<FrontendCorsOptions>(builder.Configuration.GetSection(FrontendCorsOptions.SectionName));
+builder.Services.Configure<AdminOptions>(builder.Configuration.GetSection(AdminOptions.SectionName));
 
 var jwt = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? new JwtOptions();
 var cors = builder.Configuration.GetSection(FrontendCorsOptions.SectionName).Get<FrontendCorsOptions>() ?? new FrontendCorsOptions();
@@ -43,6 +44,7 @@ builder.Services
         options.Lockout.MaxFailedAccessAttempts = 5;
         options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
     })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
@@ -134,6 +136,32 @@ using (var scope = app.Services.CreateScope())
             "migration exists (dotnet ef migrations add InitialCreate).");
         throw;
     }
+
+    // Ensure the Admin role exists and grant it to the configured owner email(s),
+    // so the customer CRM is reachable by the gym owner.
+    await SeedAdminsAsync(scope.ServiceProvider, log);
 }
 
 app.Run();
+
+static async Task SeedAdminsAsync(IServiceProvider sp, ILogger log)
+{
+    var admin = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<AdminOptions>>().Value;
+    var roles = sp.GetRequiredService<RoleManager<IdentityRole>>();
+    var users = sp.GetRequiredService<UserManager<ApplicationUser>>();
+
+    if (!await roles.RoleExistsAsync(AdminOptions.RoleName))
+        await roles.CreateAsync(new IdentityRole(AdminOptions.RoleName));
+
+    foreach (var email in admin.Emails.Where(e => !string.IsNullOrWhiteSpace(e)))
+    {
+        var user = await users.FindByEmailAsync(email.Trim());
+        if (user is null)
+        {
+            log.LogInformation("Admin email {Email} has no account yet; will be promoted once registered.", email);
+            continue;
+        }
+        if (!await users.IsInRoleAsync(user, AdminOptions.RoleName))
+            await users.AddToRoleAsync(user, AdminOptions.RoleName);
+    }
+}

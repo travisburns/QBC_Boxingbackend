@@ -26,6 +26,7 @@ public sealed class LoginRequest
     public string Password { get; set; } = string.Empty;
 }
 
-public sealed record UserDto(string Id, string Email, string FirstName, string LastName);
+public sealed record UserDto(
+    string Id, string Email, string FirstName, string LastName, IReadOnlyList<string> Roles);
 
 public sealed record AuthResponse(string Token, DateTime ExpiresAtUtc, UserDto User);
