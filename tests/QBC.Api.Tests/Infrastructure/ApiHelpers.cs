@@ -42,6 +42,14 @@ public static class ApiHelpers
         return req;
     }
 
+    /// <summary>Sets a default bearer token on the client for subsequent requests.</summary>
+    public static HttpClient Authorize(this HttpClient client, string token)
+    {
+        client.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        return client;
+    }
+
     /// <summary>Grants the Admin role to an existing user (mirrors the startup seeder).</summary>
     public static async Task PromoteToAdminAsync(this TestWebAppFactory factory, string email)
     {
