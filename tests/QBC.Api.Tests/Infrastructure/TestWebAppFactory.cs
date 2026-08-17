@@ -19,6 +19,9 @@ public sealed class TestWebAppFactory : WebApplicationFactory<Program>
     // Unique per factory instance so test classes don't share state.
     private readonly string _dbName = "qbc-tests-" + Guid.NewGuid();
 
+    /// <summary>An email pre-listed in Admin:Emails, so registering it grants Admin.</summary>
+    public const string ConfiguredAdminEmail = "configured.owner@qbc.test";
+
     /// <summary>The fake Square gateway wired into the app; configure it per test.</summary>
     public FakeSquareGateway Square { get; } = new();
 
@@ -35,6 +38,9 @@ public sealed class TestWebAppFactory : WebApplicationFactory<Program>
         Environment.SetEnvironmentVariable("Square__PlanVariationIds__strength", "var_strength_test");
         Environment.SetEnvironmentVariable("Square__PlanVariationIds__boxing", "var_boxing_test");
         Environment.SetEnvironmentVariable("Square__PlanVariationIds__unlimited", "var_unlimited_test");
+
+        // A known configured-owner email so promote-on-registration can be tested.
+        Environment.SetEnvironmentVariable("Admin__Emails__0", ConfiguredAdminEmail);
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)

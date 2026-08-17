@@ -2,8 +2,10 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using QBC.Api.Models;
 using QBC.Api.Dtos;
+using QBC.Api.Options;
 using QBC.Api.Services;
 
 namespace QBC.Api.Controllers;
@@ -13,8 +15,12 @@ namespace QBC.Api.Controllers;
 public sealed class AuthController(
     UserManager<ApplicationUser> users,
     SignInManager<ApplicationUser> signIn,
+    RoleManager<IdentityRole> roles,
+    IOptions<AdminOptions> adminOptions,
     ITokenService tokens) : ControllerBase
 {
+    private readonly AdminOptions _admin = adminOptions.Value;
+
     [HttpPost("register")]
     public async Task<ActionResult<AuthResponse>> Register(RegisterRequest req)
     {
@@ -36,6 +42,11 @@ public sealed class AuthController(
             // Identity messages (e.g. weak password) are safe to surface.
             return BadRequest(new { message = string.Join(" ", result.Errors.Select(e => e.Description)) });
         }
+
+        // If this email is a configured owner, grant the Admin role now so the
+        // CRM is reachable immediately — no app restart needed (the startup
+        // seeder only covers accounts that already exist when the app boots).
+        await PromoteIfConfiguredAdminAsync(user);
 
         return Ok(await BuildAuthResponse(user));
     }
@@ -68,6 +79,20 @@ public sealed class AuthController(
         if (user is null) return Unauthorized();
         var roles = await users.GetRolesAsync(user);
         return Ok(new UserDto(user.Id, user.Email!, user.FirstName, user.LastName, roles.ToList()));
+    }
+
+    private async Task PromoteIfConfiguredAdminAsync(ApplicationUser user)
+    {
+        var isConfiguredAdmin = _admin.Emails.Any(e =>
+            !string.IsNullOrWhiteSpace(e) &&
+            string.Equals(e.Trim(), user.Email, StringComparison.OrdinalIgnoreCase));
+        if (!isConfiguredAdmin) return;
+
+        if (!await roles.RoleExistsAsync(AdminOptions.RoleName))
+            await roles.CreateAsync(new IdentityRole(AdminOptions.RoleName));
+
+        if (!await users.IsInRoleAsync(user, AdminOptions.RoleName))
+            await users.AddToRoleAsync(user, AdminOptions.RoleName);
     }
 
     private async Task<AuthResponse> BuildAuthResponse(ApplicationUser user)

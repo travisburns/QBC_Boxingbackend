@@ -57,6 +57,22 @@ public sealed class AdminAuthorizationTests(TestWebAppFactory factory)
     }
 
     [Fact]
+    public async Task A_configured_owner_email_is_granted_Admin_at_registration_without_a_restart()
+    {
+        var client = _factory.CreateClient();
+        var reg = await client.RegisterAsync(TestWebAppFactory.ConfiguredAdminEmail);
+
+        // The role is present in the register response immediately.
+        Assert.Contains(reg.User.GetProperty("roles").EnumerateArray(),
+            r => r.GetString() == "Admin");
+
+        // And the token can reach the CRM straight away.
+        var req = new HttpRequestMessage(HttpMethod.Get, "/api/admin/customers").WithBearer(reg.Token);
+        var res = await client.SendAsync(req);
+        Assert.Equal(HttpStatusCode.OK, res.StatusCode);
+    }
+
+    [Fact]
     public async Task Admin_gets_404_for_an_unknown_customer_id()
     {
         var client = _factory.CreateClient();
