@@ -127,7 +127,10 @@ using (var scope = app.Services.CreateScope())
     var log = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Startup");
     try
     {
-        db.Database.Migrate();
+        // The InMemory provider used by integration tests is not relational and
+        // cannot run migrations — it materializes the schema on demand instead.
+        if (db.Database.IsRelational())
+            db.Database.Migrate();
     }
     catch (Exception ex)
     {
@@ -143,6 +146,10 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+// Exposes the implicit Program class to the integration test project
+// (WebApplicationFactory<Program>). No effect on the running app.
+public partial class Program { }
 
 static async Task SeedAdminsAsync(IServiceProvider sp, ILogger log)
 {
