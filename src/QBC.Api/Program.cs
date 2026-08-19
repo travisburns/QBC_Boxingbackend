@@ -107,11 +107,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-else
-{
-    app.UseHsts();
-    app.UseHttpsRedirection();
-}
+
+// NOTE: TLS is terminated upstream — the frontend (Vercel) proxies requests to
+// this backend over HTTP. We must NOT force an in-app HTTPS redirect or HSTS
+// here: it would bounce the proxied HTTP request to an HTTPS endpoint this host
+// doesn't serve, breaking every request. If this API is ever fronted by its own
+// valid TLS certificate, re-enable UseHsts()/UseHttpsRedirection().
 
 app.UseCors(SpaPolicy);
 app.UseAuthentication();
