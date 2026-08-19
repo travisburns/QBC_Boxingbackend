@@ -24,4 +24,11 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Do not publish appsettings.json: the server holds the real config
+         (connection string + Jwt:Key). Publishing the repo's empty copy would
+         overwrite it on every VSDeploy. Local dev still uses it normally. -->
+    <Content Update="appsettings.json" CopyToPublishDirectory="Never" />
+  </ItemGroup>
+
 </Project>
