@@ -147,10 +147,6 @@ using (var scope = app.Services.CreateScope())
 
 app.Run();
 
-// Exposes the implicit Program class to the integration test project
-// (WebApplicationFactory<Program>). No effect on the running app.
-public partial class Program { }
-
 static async Task SeedAdminsAsync(IServiceProvider sp, ILogger log)
 {
     var admin = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<AdminOptions>>().Value;
@@ -172,3 +168,8 @@ static async Task SeedAdminsAsync(IServiceProvider sp, ILogger log)
             await users.AddToRoleAsync(user, AdminOptions.RoleName);
     }
 }
+
+// Exposes the implicit Program class to the integration test project
+// (WebApplicationFactory<Program>). Must sit at the end — after all top-level
+// statements. No effect on the running app.
+public partial class Program { }
