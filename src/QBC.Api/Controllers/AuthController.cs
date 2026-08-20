@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 using QBC.Api.Models;
 using QBC.Api.Dtos;
@@ -12,6 +13,7 @@ namespace QBC.Api.Controllers;
 
 [ApiController]
 [Route("api/auth")]
+[EnableRateLimiting("auth")]
 public sealed class AuthController(
     UserManager<ApplicationUser> users,
     SignInManager<ApplicationUser> signIn,

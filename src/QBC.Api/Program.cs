@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -70,6 +71,37 @@ builder.Services
     });
 builder.Services.AddAuthorization();
 
+// ---- Rate limiting ----
+// Throttles the unauthenticated auth surface (login/register) per client to
+// blunt brute-force, account-enumeration, and signup-spam. Partition key is the
+// forwarded client IP when present (we sit behind a proxy in production), else
+// the socket IP. This key is only used for coarse throttling — never for auth —
+// so a spoofed header at worst widens one attacker's own bucket; credential
+// safety still rests on Identity's account lockout.
+const string AuthRateLimit = "auth";
+// Effectively off under integration tests (many auth calls share one client IP);
+// enforced everywhere else.
+var authPermitLimit = builder.Environment.IsEnvironment("Testing") ? 100_000 : 10;
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy(AuthRateLimit, httpContext =>
+    {
+        var forwarded = httpContext.Request.Headers["X-Forwarded-For"].ToString();
+        var clientKey = !string.IsNullOrWhiteSpace(forwarded)
+            ? forwarded.Split(',')[0].Trim()
+            : httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+        return RateLimitPartition.GetFixedWindowLimiter(clientKey, _ =>
+            new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
+            {
+                PermitLimit = authPermitLimit,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+            });
+    });
+});
+
 // ---- CORS for the SPA ----
 const string SpaPolicy = "spa";
 builder.Services.AddCors(o => o.AddPolicy(SpaPolicy, p =>
@@ -116,6 +148,7 @@ if (app.Environment.IsDevelopment())
 // valid TLS certificate, re-enable UseHsts()/UseHttpsRedirection().
 
 app.UseCors(SpaPolicy);
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

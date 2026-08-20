@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using QBC.Api.Data;
 using QBC.Api.Models;
 using QBC.Api.Services;
@@ -49,23 +50,36 @@ public sealed class WebhooksController(
             return BadRequest();
         }
 
-        // Idempotency: skip events we've already recorded.
+        // Idempotency: skip events we've already fully processed.
+        if (!string.IsNullOrEmpty(eventId) && db.WebhookEvents.Any(w => w.EventId == eventId))
+            return Ok();
+
+        // Do the work FIRST. If the sync throws, we return non-2xx and do NOT
+        // record the event, so Square's redelivery retries it. Recording the
+        // event before syncing would let a failed sync be swallowed on retry
+        // (the dedup check would short-circuit it), leaving our state stale.
+        if (!string.IsNullOrEmpty(subscriptionId))
+        {
+            await memberships.SyncFromSquareAsync(subscriptionId, ct);
+        }
+
+        // Mark processed only after the work succeeded.
         if (!string.IsNullOrEmpty(eventId))
         {
-            if (db.WebhookEvents.Any(w => w.EventId == eventId))
-                return Ok();
-
             db.WebhookEvents.Add(new WebhookEvent
             {
                 EventId = eventId,
                 EventType = eventType ?? "unknown",
             });
-            await db.SaveChangesAsync(ct);
-        }
-
-        if (!string.IsNullOrEmpty(subscriptionId))
-        {
-            await memberships.SyncFromSquareAsync(subscriptionId, ct);
+            try
+            {
+                await db.SaveChangesAsync(ct);
+            }
+            catch (DbUpdateException)
+            {
+                // A concurrent redelivery already recorded this event id (unique
+                // index). The sync is idempotent, so treat this as success.
+            }
         }
 
         return Ok();
