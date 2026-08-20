@@ -1,0 +1,87 @@
+// ---------------------------------------------------------------------------
+// QBC Boxing — backend configuration TEMPLATE (reference only, NOT loaded).
+//
+// HOW TO USE
+//   Copy each filled-in value into the REAL config for your environment:
+//     • Local dev  -> `dotnet user-secrets set "<Key>" "<value>"`  (never a file)
+//     • Production -> the server's `appsettings.json` (SmarterASP File Manager)
+//                     or host environment variables. Restart the app after.
+//
+// SECRETS (marked ***SECRET*** below) must NEVER be committed to git, put in any
+// NEXT_PUBLIC_* value, screenshotted, or pasted into chat. They belong only on
+// the server. The real `appsettings.json` in this repo ships with these blank
+// on purpose — fill them in on the server, not here.
+//
+// Where the values come from: Square Developer Dashboard
+//   (developer.squareup.com/apps -> your app):
+//     Application ID  -> FRONTEND only (NEXT_PUBLIC_SQUARE_APP_ID) — not in this file
+//     Access Token    -> Square:AccessToken below   ***SECRET***
+//     Location ID     -> Square:LocationId below     (also goes in the frontend)
+// ---------------------------------------------------------------------------
+{
+  // JWT signing. The Key must be >= 32 characters; the app refuses to start
+  // otherwise. Generate one with:  openssl rand -base64 48
+  "Jwt": {
+    "Issuer": "qbc-boxing",
+    "Audience": "qbc-boxing-client",
+    "Key": "REPLACE_WITH_A_LONG_RANDOM_STRING_MIN_32_CHARS", // ***SECRET***
+    "AccessTokenMinutes": 120
+  },
+
+  // SQL Server connection string. On SmarterASP this is the connection string
+  // from your hosting panel (Database section).
+  "ConnectionStrings": {
+    "Default": "Server=...;Database=qbcdata;User Id=...;Password=...;TrustServerCertificate=True" // ***SECRET*** (contains a DB password)
+  },
+
+  // Square payment processor.
+  "Square": {
+    // "sandbox" while testing with fake cards; "production" to charge real cards.
+    "Environment": "sandbox",
+
+    // ***SECRET*** — Square Developer Dashboard -> your app -> Credentials
+    // (Sandbox toggle for testing). Looks like "EAAA....". BACKEND ONLY.
+    "AccessToken": "REPLACE_WITH_SQUARE_ACCESS_TOKEN",
+
+    // Square Developer Dashboard -> your app -> Locations. Looks like "L....".
+    // Put this SAME value in the frontend's NEXT_PUBLIC_SQUARE_LOCATION_ID too.
+    "LocationId": "REPLACE_WITH_SQUARE_LOCATION_ID",
+
+    // ***SECRET*** — only needed for MEMBERSHIP renewals (webhooks); day passes
+    // work without it. From Square Dashboard -> Developer -> Webhooks -> your
+    // endpoint's Signature Key. Leave blank until you set up the webhook.
+    "WebhookSignatureKey": "",
+
+    // The exact public URL Square posts webhooks to (part of the signature).
+    // e.g. https://api.qbcboxing.com/api/webhooks/square . Leave blank for now.
+    "WebhookNotificationUrl": "",
+
+    "ApiVersion": "2025-01-23",
+
+    // Only needed for MEMBERSHIPS: map each plan id to its Square subscription
+    // plan-variation id (Square Dashboard -> Subscriptions -> Plans). Day passes
+    // do NOT use these — leave blank if you're only enabling day passes.
+    "PlanVariationIds": {
+      "strength": "",
+      "boxing": "",
+      "unlimited": ""
+    }
+  },
+
+  // Owner CRM access: any registered account whose email is listed here is
+  // granted the Admin role at startup (unlocks /admin and the day-pass check-in).
+  "Admin": {
+    "Emails": [
+      "owner@qbcboxing.com"
+    ]
+  },
+
+  // Browser origins allowed to call this API (your deployed frontend domains).
+  "Cors": {
+    "AllowedOrigins": [
+      "http://localhost:3000",
+      "https://qbcboxing.com",
+      "https://www.qbcboxing.com"
+    ]
+  }
+}
