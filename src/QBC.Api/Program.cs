@@ -80,6 +80,7 @@ builder.Services.AddCors(o => o.AddPolicy(SpaPolicy, p =>
 // ---- App services ----
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IMembershipService, MembershipService>();
+builder.Services.AddScoped<IDayPassService, DayPassService>();
 
 // Typed HTTP client for Square: the owner's access token is attached here,
 // server-side only, and never leaves the backend.

@@ -14,5 +14,14 @@ public class ApplicationUser : IdentityUser
     /// <summary>Square customer id (created lazily at first checkout). Not sensitive.</summary>
     public string? SquareCustomerId { get; set; }
 
+    /// <summary>
+    /// The user's default card-on-file (Square card id) for one-tap repeat
+    /// purchases such as day passes. Not sensitive — it's an opaque Square id.
+    /// The card itself lives at Square; we keep only the id plus display data.
+    /// </summary>
+    public string? DefaultSquareCardId { get; set; }
+    public string? DefaultCardBrand { get; set; }
+    public string? DefaultCardLast4 { get; set; }
+
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 }

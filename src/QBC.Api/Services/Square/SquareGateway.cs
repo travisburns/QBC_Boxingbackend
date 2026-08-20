@@ -59,6 +59,39 @@ public sealed class SquareGateway(
             card.TryGetProperty("last_4", out var l) ? l.GetString() : null);
     }
 
+    public async Task<SquarePaymentResult> CreatePaymentAsync(
+        string sourceId, string? customerId, long amountCents, string currency,
+        string idempotencyKey, CancellationToken ct)
+    {
+        var body = new
+        {
+            idempotency_key = idempotencyKey,
+            source_id = sourceId,
+            customer_id = customerId,
+            location_id = _opt.LocationId,
+            // Server-side amount — the browser never dictates what is charged.
+            amount_money = new { amount = amountCents, currency },
+            autocomplete = true,
+        };
+
+        using var doc = await PostAsync("/v2/payments", body, ct);
+        var payment = doc.RootElement.GetProperty("payment");
+
+        string? brand = null, last4 = null;
+        if (payment.TryGetProperty("card_details", out var cd) &&
+            cd.TryGetProperty("card", out var card))
+        {
+            brand = card.TryGetProperty("card_brand", out var b) ? b.GetString() : null;
+            last4 = card.TryGetProperty("last_4", out var l) ? l.GetString() : null;
+        }
+
+        return new SquarePaymentResult(
+            payment.GetProperty("id").GetString()!,
+            payment.TryGetProperty("status", out var s) ? s.GetString() ?? "UNKNOWN" : "UNKNOWN",
+            brand,
+            last4);
+    }
+
     public async Task<SquareSubscriptionResult> CreateSubscriptionAsync(
         string customerId, string planVariationId, string cardId, string idempotencyKey, CancellationToken ct)
     {

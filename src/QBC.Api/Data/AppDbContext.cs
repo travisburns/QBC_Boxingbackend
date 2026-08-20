@@ -8,6 +8,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     : IdentityDbContext<ApplicationUser>(options)
 {
     public DbSet<MembershipSubscription> Subscriptions => Set<MembershipSubscription>();
+    public DbSet<DayPass> DayPasses => Set<DayPass>();
     public DbSet<WebhookEvent> WebhookEvents => Set<WebhookEvent>();
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -25,6 +26,21 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.HasOne(s => s.User)
                 .WithMany()
                 .HasForeignKey(s => s.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<DayPass>(e =>
+        {
+            e.HasIndex(p => p.UserId);
+            e.HasIndex(p => p.VisitDate);
+            e.Property(p => p.Status).HasConversion<string>().HasMaxLength(20);
+            e.Property(p => p.ProductId).HasMaxLength(64);
+            e.Property(p => p.Currency).HasMaxLength(3);
+            e.Property(p => p.CardBrand).HasMaxLength(32);
+            e.Property(p => p.CardLast4).HasMaxLength(4);
+            e.HasOne(p => p.User)
+                .WithMany()
+                .HasForeignKey(p => p.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 

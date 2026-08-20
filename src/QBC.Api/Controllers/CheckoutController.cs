@@ -14,6 +14,7 @@ namespace QBC.Api.Controllers;
 [Route("api/checkout")]
 public sealed class CheckoutController(
     IMembershipService memberships,
+    IDayPassService dayPasses,
     UserManager<ApplicationUser> users,
     ILogger<CheckoutController> logger) : ControllerBase
 {
@@ -41,6 +42,34 @@ public sealed class CheckoutController(
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected checkout error for user {UserId}",
+                User.FindFirstValue(ClaimTypes.NameIdentifier));
+            return StatusCode(500, new { message = "Something went wrong. You were not charged." });
+        }
+    }
+
+    [HttpPost("day-pass")]
+    public async Task<ActionResult<DayPassDto>> BuyDayPass(DayPassRequest req, CancellationToken ct)
+    {
+        var user = await users.GetUserAsync(User);
+        if (user is null) return Unauthorized();
+
+        try
+        {
+            var pass = await dayPasses.PurchaseAsync(user, req, ct);
+            return Ok(pass);
+        }
+        catch (MembershipException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (SquareApiException ex)
+        {
+            // Card declined / provider rejection — safe, specific message.
+            return UnprocessableEntity(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected day-pass checkout error for user {UserId}",
                 User.FindFirstValue(ClaimTypes.NameIdentifier));
             return StatusCode(500, new { message = "Something went wrong. You were not charged." });
         }

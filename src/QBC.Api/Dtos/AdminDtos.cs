@@ -30,6 +30,25 @@ public sealed record MembershipRecordDto(
     DateTime CreatedUtc,
     DateTime UpdatedUtc);
 
+/// <summary>One day pass in the front-desk check-in list for a given date.</summary>
+public sealed record DayPassCheckInDto(
+    int Id,
+    string UserId,
+    string CustomerName,
+    string Email,
+    string ProductName,
+    string VisitDate,
+    string Status,
+    DateTime CreatedUtc,
+    DateTime? RedeemedUtc);
+
+/// <summary>The day's day-pass list plus quick counts for the check-in header.</summary>
+public sealed record DayPassCheckInListDto(
+    string Date,
+    int Total,
+    int Redeemed,
+    IReadOnlyList<DayPassCheckInDto> Passes);
+
 /// <summary>Full customer profile for the CRM detail view.</summary>
 public sealed record CustomerDetailDto(
     string Id,

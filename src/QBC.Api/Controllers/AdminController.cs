@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -72,6 +73,72 @@ public sealed class AdminController(AppDbContext db) : ControllerBase
         return Ok(new CustomerDetailDto(
             u.Id, u.Email!, u.FirstName, u.LastName, u.CreatedAtUtc, u.SquareCustomerId, summary, history));
     }
+
+    /// <summary>
+    /// Day passes reserved for a given day (default: today), so the front desk
+    /// can see who's coming in and check them off.
+    /// </summary>
+    [HttpGet("day-passes")]
+    public async Task<ActionResult<DayPassCheckInListDto>> DayPasses(
+        [FromQuery] string? date, CancellationToken ct)
+    {
+        var day = ParseDateOrToday(date);
+
+        var rows = await (
+            from p in db.DayPasses.AsNoTracking()
+            join u in db.Users.AsNoTracking() on p.UserId equals u.Id
+            where p.VisitDate == day
+            orderby p.CreatedAtUtc
+            select new { p, u }).ToListAsync(ct);
+
+        var passes = rows.Select(r => new DayPassCheckInDto(
+            r.p.Id,
+            r.u.Id,
+            $"{r.u.FirstName} {r.u.LastName}".Trim(),
+            r.u.Email!,
+            DayPassCatalog.Find(r.p.ProductId)?.Name ?? r.p.ProductId,
+            r.p.VisitDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+            r.p.Status.ToWire(),
+            r.p.CreatedAtUtc,
+            r.p.RedeemedAtUtc)).ToList();
+
+        var redeemed = passes.Count(p => p.Status == DayPassStatus.Redeemed.ToWire());
+        return Ok(new DayPassCheckInListDto(
+            day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), passes.Count, redeemed, passes));
+    }
+
+    /// <summary>Marks a day pass as redeemed (checked in at the desk).</summary>
+    [HttpPost("day-passes/{id:int}/redeem")]
+    public async Task<ActionResult<DayPassCheckInDto>> RedeemDayPass(int id, CancellationToken ct)
+    {
+        var pass = await db.DayPasses.FirstOrDefaultAsync(p => p.Id == id, ct);
+        if (pass is null) return NotFound();
+
+        if (pass.Status == DayPassStatus.Paid)
+        {
+            pass.Status = DayPassStatus.Redeemed;
+            pass.RedeemedAtUtc = DateTime.UtcNow;
+            await db.SaveChangesAsync(ct);
+        }
+
+        var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == pass.UserId, ct);
+        return Ok(new DayPassCheckInDto(
+            pass.Id,
+            pass.UserId,
+            user is null ? "" : $"{user.FirstName} {user.LastName}".Trim(),
+            user?.Email ?? "",
+            DayPassCatalog.Find(pass.ProductId)?.Name ?? pass.ProductId,
+            pass.VisitDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+            pass.Status.ToWire(),
+            pass.CreatedAtUtc,
+            pass.RedeemedAtUtc));
+    }
+
+    private static DateOnly ParseDateOrToday(string? raw) =>
+        DateOnly.TryParseExact(raw, "yyyy-MM-dd", CultureInfo.InvariantCulture,
+            DateTimeStyles.None, out var d)
+            ? d
+            : DateOnly.FromDateTime(DateTime.UtcNow);
 
     private static CustomerSummaryDto ToSummary(
         string id, string email, string first, string last, DateTime joined, MembershipSubscription? sub)

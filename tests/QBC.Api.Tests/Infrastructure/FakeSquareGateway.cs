@@ -14,9 +14,14 @@ public sealed class FakeSquareGateway : ISquareGateway
     public SquareCardResult Card { get; set; } = new("card_test_123", "Visa", "1111");
     public SquareSubscriptionResult Subscription { get; set; } =
         new("sub_test_123", "ACTIVE", "card_test_123", DateTime.UtcNow.AddMonths(1));
+    public SquarePaymentResult Payment { get; set; } =
+        new("pay_test_123", "COMPLETED", "Visa", "1111");
 
     /// <summary>When set, <see cref="CreateSubscriptionAsync"/> throws it (e.g. a decline).</summary>
     public Exception? FailCreateSubscriptionWith { get; set; }
+
+    /// <summary>When set, <see cref="CreatePaymentAsync"/> throws it (e.g. a decline).</summary>
+    public Exception? FailCreatePaymentWith { get; set; }
 
     /// <summary>Controls the result of <see cref="VerifyWebhookSignature"/>.</summary>
     public bool WebhookSignatureValid { get; set; } = true;
@@ -24,6 +29,7 @@ public sealed class FakeSquareGateway : ISquareGateway
     public int EnsureCustomerCalls { get; private set; }
     public int CreateCardCalls { get; private set; }
     public int CreateSubscriptionCalls { get; private set; }
+    public int CreatePaymentCalls { get; private set; }
     public int CancelCalls { get; private set; }
 
     public Task<string> EnsureCustomerAsync(
@@ -46,6 +52,15 @@ public sealed class FakeSquareGateway : ISquareGateway
         CreateSubscriptionCalls++;
         if (FailCreateSubscriptionWith is not null) throw FailCreateSubscriptionWith;
         return Task.FromResult(Subscription);
+    }
+
+    public Task<SquarePaymentResult> CreatePaymentAsync(
+        string sourceId, string? customerId, long amountCents, string currency,
+        string idempotencyKey, CancellationToken ct)
+    {
+        CreatePaymentCalls++;
+        if (FailCreatePaymentWith is not null) throw FailCreatePaymentWith;
+        return Task.FromResult(Payment);
     }
 
     public Task<SquareSubscriptionResult> UpdateSubscriptionCardAsync(

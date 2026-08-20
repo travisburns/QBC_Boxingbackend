@@ -14,6 +14,16 @@ public interface ISquareGateway
     Task<SquareCardResult> CreateCardOnFileAsync(
         string customerId, string sourceId, string idempotencyKey, CancellationToken ct);
 
+    /// <summary>
+    /// Charges a single one-time payment (Square <c>/v2/payments</c>). The
+    /// <paramref name="sourceId"/> is either a single-use token from the Web
+    /// Payments SDK or a stored card-on-file id; when it is a stored card the
+    /// <paramref name="customerId"/> that owns it must be supplied.
+    /// </summary>
+    Task<SquarePaymentResult> CreatePaymentAsync(
+        string sourceId, string? customerId, long amountCents, string currency,
+        string idempotencyKey, CancellationToken ct);
+
     Task<SquareSubscriptionResult> CreateSubscriptionAsync(
         string customerId, string planVariationId, string cardId, string idempotencyKey, CancellationToken ct);
 

@@ -13,6 +13,7 @@ namespace QBC.Api.Controllers;
 [Route("api/account")]
 public sealed class AccountController(
     IMembershipService memberships,
+    IDayPassService dayPasses,
     UserManager<ApplicationUser> users,
     ILogger<AccountController> logger) : ControllerBase
 {
@@ -22,6 +23,22 @@ public sealed class AccountController(
         var user = await users.GetUserAsync(User);
         if (user is null) return Unauthorized();
         return Ok(await memberships.GetMembershipAsync(user.Id, ct));
+    }
+
+    [HttpGet("day-passes")]
+    public async Task<ActionResult<IReadOnlyList<DayPassDto>>> DayPasses(CancellationToken ct)
+    {
+        var user = await users.GetUserAsync(User);
+        if (user is null) return Unauthorized();
+        return Ok(await dayPasses.ListForUserAsync(user.Id, ct));
+    }
+
+    [HttpGet("saved-card")]
+    public async Task<ActionResult<SavedCardDto>> SavedCard()
+    {
+        var user = await users.GetUserAsync(User);
+        if (user is null) return Unauthorized();
+        return Ok(dayPasses.GetSavedCard(user));
     }
 
     [HttpPost("membership/cancel")]
