@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -127,6 +128,23 @@ builder.Services.AddHttpClient<ISquareGateway, SquareGateway>((sp, client) =>
 
 // SignInManager depends on IHttpContextAccessor — register it explicitly.
 builder.Services.AddHttpContextAccessor();
+
+// ---- Data Protection ----
+// Persist the DataProtection keyring to disk so it survives app-pool recycles
+// and deploys. Without this the host uses an in-memory keyring (see the startup
+// warning in the logs), which regenerates on every restart and invalidates
+// password-reset / email-confirmation tokens. Keys live outside the published
+// output so a deploy won't wipe them; the path is overridable via config.
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    var keysPath = builder.Configuration["DataProtection:KeysPath"]
+        ?? Path.Combine(builder.Environment.ContentRootPath, "dp-keys");
+    Directory.CreateDirectory(keysPath);
+    builder.Services
+        .AddDataProtection()
+        .SetApplicationName("QBC.Api")
+        .PersistKeysToFileSystem(new DirectoryInfo(keysPath));
+}
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

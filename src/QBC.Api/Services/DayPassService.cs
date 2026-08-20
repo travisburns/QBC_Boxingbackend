@@ -86,7 +86,8 @@ public sealed class DayPassService(
         }
 
         var payment = await square.CreatePaymentAsync(
-            sourceId, customerId, product.PriceCents, product.Currency, req.IdempotencyKey, ct);
+            sourceId, customerId, product.PriceCents, product.Currency,
+            req.IdempotencyKey, user.Email, ct);
 
         var pass = new DayPass
         {

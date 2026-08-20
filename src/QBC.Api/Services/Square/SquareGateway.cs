@@ -61,7 +61,7 @@ public sealed class SquareGateway(
 
     public async Task<SquarePaymentResult> CreatePaymentAsync(
         string sourceId, string? customerId, long amountCents, string currency,
-        string idempotencyKey, CancellationToken ct)
+        string idempotencyKey, string? buyerEmail, CancellationToken ct)
     {
         var body = new
         {
@@ -71,6 +71,8 @@ public sealed class SquareGateway(
             location_id = _opt.LocationId,
             // Server-side amount — the browser never dictates what is charged.
             amount_money = new { amount = amountCents, currency },
+            // Square emails a receipt to this address when set (null is omitted).
+            buyer_email_address = buyerEmail,
             autocomplete = true,
         };
 

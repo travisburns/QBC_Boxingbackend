@@ -19,6 +19,9 @@ secrets.json
 .env
 .env.local
 
+## Data Protection keyring (generated at runtime; never commit)
+dp-keys/
+
 ## SQL
 *.mdf
 *.ldf

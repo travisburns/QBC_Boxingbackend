@@ -22,7 +22,7 @@ public interface ISquareGateway
     /// </summary>
     Task<SquarePaymentResult> CreatePaymentAsync(
         string sourceId, string? customerId, long amountCents, string currency,
-        string idempotencyKey, CancellationToken ct);
+        string idempotencyKey, string? buyerEmail, CancellationToken ct);
 
     Task<SquareSubscriptionResult> CreateSubscriptionAsync(
         string customerId, string planVariationId, string cardId, string idempotencyKey, CancellationToken ct);

@@ -56,7 +56,7 @@ public sealed class FakeSquareGateway : ISquareGateway
 
     public Task<SquarePaymentResult> CreatePaymentAsync(
         string sourceId, string? customerId, long amountCents, string currency,
-        string idempotencyKey, CancellationToken ct)
+        string idempotencyKey, string? buyerEmail, CancellationToken ct)
     {
         CreatePaymentCalls++;
         if (FailCreatePaymentWith is not null) throw FailCreatePaymentWith;
