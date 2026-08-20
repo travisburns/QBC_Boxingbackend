@@ -16,7 +16,7 @@ public sealed class CheckoutFlowTests(TestWebAppFactory factory) : IClassFixture
 {
     private readonly TestWebAppFactory _factory = factory;
 
-    private static object SubRequest(string plan = "boxing") =>
+    private static object SubRequest(string plan = "membership") =>
         new { planId = plan, sourceId = "cnon:card-nonce-ok", idempotencyKey = Guid.NewGuid().ToString() };
 
     [Fact]
@@ -27,13 +27,13 @@ public sealed class CheckoutFlowTests(TestWebAppFactory factory) : IClassFixture
         var reg = await client.RegisterAsync("buyer.ok@qbc.test");
         client.Authorize(reg.Token);
 
-        var res = await client.PostAsJsonAsync("/api/checkout/subscription", SubRequest("boxing"));
+        var res = await client.PostAsJsonAsync("/api/checkout/subscription", SubRequest("membership"));
 
         Assert.Equal(HttpStatusCode.OK, res.StatusCode);
         var body = await res.Content.ReadFromJsonAsync<JsonElement>();
         Assert.Equal("active", body.GetProperty("status").GetString());
         var m = body.GetProperty("membership");
-        Assert.Equal("boxing", m.GetProperty("planId").GetString());
+        Assert.Equal("membership", m.GetProperty("planId").GetString());
         Assert.Equal("Visa", m.GetProperty("cardBrand").GetString());
         Assert.Equal("1111", m.GetProperty("cardLast4").GetString());
 
@@ -52,7 +52,7 @@ public sealed class CheckoutFlowTests(TestWebAppFactory factory) : IClassFixture
             var reg = await client.RegisterAsync("buyer.declined@qbc.test");
             client.Authorize(reg.Token);
 
-            var res = await client.PostAsJsonAsync("/api/checkout/subscription", SubRequest("boxing"));
+            var res = await client.PostAsJsonAsync("/api/checkout/subscription", SubRequest("membership"));
             Assert.Equal(HttpStatusCode.UnprocessableEntity, res.StatusCode);
 
             var membership = await client.GetFromJsonAsync<JsonElement>("/api/account/membership");
@@ -72,10 +72,10 @@ public sealed class CheckoutFlowTests(TestWebAppFactory factory) : IClassFixture
         var reg = await client.RegisterAsync("buyer.dupe@qbc.test");
         client.Authorize(reg.Token);
 
-        var first = await client.PostAsJsonAsync("/api/checkout/subscription", SubRequest("boxing"));
+        var first = await client.PostAsJsonAsync("/api/checkout/subscription", SubRequest("membership"));
         Assert.Equal(HttpStatusCode.OK, first.StatusCode);
 
-        var second = await client.PostAsJsonAsync("/api/checkout/subscription", SubRequest("unlimited"));
+        var second = await client.PostAsJsonAsync("/api/checkout/subscription", SubRequest("membership"));
         Assert.Equal(HttpStatusCode.BadRequest, second.StatusCode);
     }
 
@@ -88,7 +88,7 @@ public sealed class CheckoutFlowTests(TestWebAppFactory factory) : IClassFixture
         var reg = await client.RegisterAsync("buyer.cancel@qbc.test");
         client.Authorize(reg.Token);
 
-        await client.PostAsJsonAsync("/api/checkout/subscription", SubRequest("boxing"));
+        await client.PostAsJsonAsync("/api/checkout/subscription", SubRequest("membership"));
         var res = await client.PostAsync("/api/account/membership/cancel", new StringContent(string.Empty));
 
         Assert.Equal(HttpStatusCode.OK, res.StatusCode);

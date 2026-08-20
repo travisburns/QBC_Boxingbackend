@@ -33,11 +33,9 @@ public sealed class TestWebAppFactory : WebApplicationFactory<Program>
         Environment.SetEnvironmentVariable(
             "Jwt__Key", "qbc-integration-test-signing-key-0123456789-abcdef-ghij");
 
-        // Give each plan a non-empty Square plan-variation id so the checkout path
-        // is reachable (the service rejects plans with no configured variation).
-        Environment.SetEnvironmentVariable("Square__PlanVariationIds__strength", "var_strength_test");
-        Environment.SetEnvironmentVariable("Square__PlanVariationIds__boxing", "var_boxing_test");
-        Environment.SetEnvironmentVariable("Square__PlanVariationIds__unlimited", "var_unlimited_test");
+        // Give the membership plan a non-empty Square plan-variation id so the
+        // checkout path is reachable (the service rejects plans with no variation).
+        Environment.SetEnvironmentVariable("Square__PlanVariationIds__membership", "var_membership_test");
 
         // A known configured-owner email so promote-on-registration can be tested.
         Environment.SetEnvironmentVariable("Admin__Emails__0", ConfiguredAdminEmail);

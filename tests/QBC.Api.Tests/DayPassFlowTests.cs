@@ -23,7 +23,7 @@ public sealed class DayPassFlowTests(TestWebAppFactory factory) : IClassFixture<
     private static object PassRequest(string? date = null, bool saveCard = false) =>
         new
         {
-            productId = "day-pass",
+            productId = "drop-in",
             visitDate = date ?? InDays(1),
             sourceId = "cnon:card-nonce-ok",
             idempotencyKey = Guid.NewGuid().ToString(),
@@ -43,7 +43,7 @@ public sealed class DayPassFlowTests(TestWebAppFactory factory) : IClassFixture<
 
         Assert.Equal(HttpStatusCode.OK, res.StatusCode);
         var pass = await res.Content.ReadFromJsonAsync<JsonElement>();
-        Assert.Equal("day-pass", pass.GetProperty("productId").GetString());
+        Assert.Equal("drop-in", pass.GetProperty("productId").GetString());
         Assert.Equal(date, pass.GetProperty("visitDate").GetString());
         Assert.Equal("paid", pass.GetProperty("status").GetString());
         Assert.Equal("Visa", pass.GetProperty("cardBrand").GetString());
@@ -110,7 +110,7 @@ public sealed class DayPassFlowTests(TestWebAppFactory factory) : IClassFixture<
         // Second purchase uses the saved card — no new token needed.
         var repeat = await client.PostAsJsonAsync("/api/checkout/day-pass", new
         {
-            productId = "day-pass",
+            productId = "drop-in",
             visitDate = InDays(3),
             idempotencyKey = Guid.NewGuid().ToString(),
             useSavedCard = true,

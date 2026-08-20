@@ -68,9 +68,7 @@ dotnet user-secrets set "Square:AccessToken"          "<SANDBOX_ACCESS_TOKEN>"
 dotnet user-secrets set "Square:LocationId"           "<SANDBOX_LOCATION_ID>"
 dotnet user-secrets set "Square:WebhookSignatureKey"  "<WEBHOOK_SIGNATURE_KEY>"
 dotnet user-secrets set "Square:WebhookNotificationUrl" "https://<your-tunnel>/api/webhooks/square"
-dotnet user-secrets set "Square:PlanVariationIds:strength"  "<VARIATION_ID>"
-dotnet user-secrets set "Square:PlanVariationIds:boxing"    "<VARIATION_ID>"
-dotnet user-secrets set "Square:PlanVariationIds:unlimited" "<VARIATION_ID>"
+dotnet user-secrets set "Square:PlanVariationIds:membership" "<VARIATION_ID>"
 ```
 
 ### Production
@@ -84,9 +82,7 @@ Square__AccessToken=<PROD_ACCESS_TOKEN>
 Square__LocationId=<PROD_LOCATION_ID>
 Square__WebhookSignatureKey=<PROD_WEBHOOK_SIGNATURE_KEY>
 Square__WebhookNotificationUrl=https://api.qbcboxing.com/api/webhooks/square
-Square__PlanVariationIds__strength=<PROD_VARIATION_ID>
-Square__PlanVariationIds__boxing=<PROD_VARIATION_ID>
-Square__PlanVariationIds__unlimited=<PROD_VARIATION_ID>
+Square__PlanVariationIds__membership=<PROD_VARIATION_ID>
 ```
 
 `SquareOptions.ApiBaseUrl` automatically targets
@@ -97,18 +93,21 @@ Square__PlanVariationIds__unlimited=<PROD_VARIATION_ID>
 
 ## 3. Create the membership plans in Square
 
-The site has three tiers (source of truth: `Catalog/PlanCatalog.cs` and
-`lib/plans.ts`). Prices there are what we **display**; the actual recurring
+The site has a single membership tier (source of truth: `Catalog/PlanCatalog.cs`
+and `lib/plans.ts`). Prices there are what we **display**; the actual recurring
 charge is driven by the Square subscription plan you create here.
+
+> The one-time products (Drop-In $25, Kids Class $25, Session $35) are **not**
+> subscriptions — they're direct charges and need no Square plan. This section
+> is only for the recurring membership.
 
 In the Square Dashboard (Sandbox first):
 
-1. **Subscriptions → Plans → Create plan** for each tier:
-   - Strength — $89.00 / month
-   - Boxing — $99.00 / month
-   - Unlimited — $149.00 / month
-2. Each plan has a **plan variation** — copy its ID (`Square:PlanVariationIds`).
-3. Keep the display prices in `PlanCatalog.cs` in sync with the Square plans.
+1. **Subscriptions → Plans → Create plan**:
+   - Membership — $120.00 / month
+2. The plan has a **plan variation** — copy its ID into
+   `Square:PlanVariationIds:membership`.
+3. Keep the display price in `PlanCatalog.cs` in sync with the Square plan.
 
 > Prices live in two places on purpose: the catalog for display/validation, and
 > Square for actual billing. If you change a price, change both.

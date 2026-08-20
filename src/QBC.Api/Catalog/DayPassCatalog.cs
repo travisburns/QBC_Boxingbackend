@@ -21,11 +21,14 @@ public static class DayPassCatalog
     /// </summary>
     public const int MaxDaysAhead = 7;
 
-    // TODO(owner): confirm the real drop-in price. $20.00 is a placeholder.
     public static readonly IReadOnlyList<DayPassProduct> Products = new List<DayPassProduct>
     {
-        new("day-pass", "Day Pass", 2000, "USD",
-            "One full day of open gym + floor access. Reserve any day within the next week."),
+        new("drop-in", "Drop-In", 2500, "USD",
+            "One visit — open gym + floor access for the day."),
+        new("kids-class", "Kids Class", 2500, "USD",
+            "One kids class. Reserve the day you're coming in."),
+        new("session", "Session", 3500, "USD",
+            "One coached session — held Mon, Tue, Thu & Sat."),
     };
 
     public static DayPassProduct? Find(string id) =>

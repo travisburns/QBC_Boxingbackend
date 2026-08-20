@@ -20,18 +20,10 @@ public static class PlanCatalog
 {
     public static readonly IReadOnlyList<MembershipPlan> Plans = new List<MembershipPlan>
     {
-        new("strength", "Strength", 8900, "USD", "monthly",
-            "The iron. The platform. Open gym, all yours.",
-            ["Full strength & powerlifting floor", "Open gym, 24/7 member access",
-             "Programming templates & PR tracking", "Locker room & recovery area"]),
-        new("boxing", "Boxing", 9900, "USD", "monthly",
-            "Ring, bags, and coaching that hits back.",
-            ["Boxing ring & heavy-bag stations", "All boxing & conditioning classes",
-             "Wraps, gloves & technique clinics", "Open gym, 24/7 member access"]),
-        new("unlimited", "Unlimited", 14900, "USD", "monthly",
-            "Everything we do — no limits, no excuses.",
-            ["Everything in Strength + Boxing", "Unlimited group classes",
-             "Priority class booking", "Guest passes & recovery suite"], Featured: true),
+        new("membership", "Membership", 12000, "USD", "monthly",
+            "Full access. Train on your schedule.",
+            ["Unlimited gym & floor access", "All classes included",
+             "Open gym hours", "No contract — cancel anytime"], Featured: true),
     };
 
     public static MembershipPlan? Find(string id) =>

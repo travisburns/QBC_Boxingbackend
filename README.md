@@ -67,9 +67,7 @@ dotnet user-secrets set "Square:WebhookSignatureKey" "....."
 dotnet user-secrets set "Square:WebhookNotificationUrl" "https://your-host/api/webhooks/square"
 
 # Map each plan to its Square subscription plan-variation id
-dotnet user-secrets set "Square:PlanVariationIds:strength"  "VARIATION_ID_1"
-dotnet user-secrets set "Square:PlanVariationIds:boxing"    "VARIATION_ID_2"
-dotnet user-secrets set "Square:PlanVariationIds:unlimited" "VARIATION_ID_3"
+dotnet user-secrets set "Square:PlanVariationIds:membership" "VARIATION_ID"
 ```
 
 Create the subscription plans (and their variations) in the Square Dashboard or

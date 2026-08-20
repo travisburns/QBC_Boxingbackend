@@ -58,13 +58,12 @@
 
     "ApiVersion": "2025-01-23",
 
-    // Only needed for MEMBERSHIPS: map each plan id to its Square subscription
-    // plan-variation id (Square Dashboard -> Subscriptions -> Plans). Day passes
-    // do NOT use these — leave blank if you're only enabling day passes.
+    // Only needed for the MEMBERSHIP: map the "membership" plan id to its Square
+    // subscription plan-variation id (Square Dashboard -> Subscriptions -> create
+    // a $120/mo plan -> copy its variation id). One-time products (drop-in, kids
+    // class, session) do NOT use this — leave blank if you're only enabling those.
     "PlanVariationIds": {
-      "strength": "",
-      "boxing": "",
-      "unlimited": ""
+      "membership": ""
     }
   },
 
